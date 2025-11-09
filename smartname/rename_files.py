@@ -5,6 +5,9 @@ import argparse
 import os
 import requests
 import base64
+import tempfile 
+import fitz #doesnt want to import. I already installed dependencies, and I dont know why it isnt working
+import tempfile
 
 
 # CLI - Command-Line Interface
@@ -191,22 +194,88 @@ def call_ollama_text(file_path: str, model: str) -> str:
     return None
 
 
-# Extractor
-def extract_pdf_image():
-  print("PDF extraction not implemented yet")
+# Extractor (Mine)
+def extract_pdf_image(file_path:str, model: str) -> str:
+  """
+  This will handle both text- based PDF's and scanned PDF'S.
+  If it can't extract text from the first page, then it'll 
+  perceive the first page as an image and send it to the VLM
+
+  This will return  with a suggested filename
+  """
+#This will allow to track the temporary image
+  temp_img_path = None 
+
+  try:
+  #Opening the file
+    document = fitz.open(file_path)
+    if len(document) == 0:
+      print(f"PDF '{file_path} is empty")
+      return None
+    
+    page= document.load_page(0) #first page of document
+    text = page.get_text("text").strip()
+
+    if len(text) >=50:
+      #This is specifically for text-based PDFs
+      with tempfile.NamedTemporaryFile(suffix=".txt", delete=False, mode='w', encoding='utf-8') as temp_txt:
+        temp_txt.write(text[:3000])
+        temp_txt_path = temp_txt.name
+      suggested = call_ollama_text(temp_txt_path, model)
+      return suggested.strip()
+    
+    else:   
+      #This is specically for image-based PDFs4
+      pix = page.get_pixmap(matrix=fitz.Matrix(2,2))
+      with tempfile.NamesTemporaryFile(suffix=".jpeg", delete=False) as temp_img:
+        temp_img.write(pix.tobytes("jpeg"))
+        temp_img_path = temp_img.name
+
+        #goes to vision model
+      sug_name = call_ollama_vision(temp_img_path, model)
+      return sug_name.strip()
+
+  except Exception as e:
+    print(f"Error processing PDF '{file_path}' : {e}")
+    return None
+  finally:
+    if temp_img_path and os.path.exists(temp_img_path):
+      os.remove(temp_img_path)
+    if 'temp_text_path' in locals() and os.path.exists(temp_txt_path):
+      os.remove(temp_txt_path)
+#   #Attempts to extract text from the first page
+
+#   #If there is not enough characters, consider the document as a scanned PDF
+#   if len(text) < 50:
+#     pix = page.get_pixmap(matric=fitz.Matrix(2,2))
+    
+#     with tempfile.NamedTemporaryFile(suffix = ".jpeg", delete =False) as temp_img:
+#      temp_img.write(pix.tobytes("jpeg"))
+#      temp_img_path = temp_img.name
+    
+#     response = call_ollama_vision(
+#        model=model,
+#        prompt = "Suggest a short, descriptive file name for this scanned PDF page: ",
+#        image_path = temp_img_path
+#     )
+#     return response.strip()
+  
+# #If there is enough characters, in this case 3000 characters, then send it to the call_ollama_text
+
+  
 
 
-# Extractor
+# Extractor(Mine)
 def extract_docx_content():
   print("DOCX extraction not implemented yet")
 
 
-# Extractor
+# Extractor (Mine)
 def extract_pptx_content():
   print("PPTX extraction not implemented yet")
 
 
-# Extractor
+# Extractor (Not now)
 def extract_video_frame():
   print("Video frame extraction not implemented yet")
 
