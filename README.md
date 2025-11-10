@@ -16,6 +16,7 @@ pip install PyMuPDF
 pip install python-docx
 pip install python-pptx
 pip install ffmpeg
+pip install fitz
 pip install --upgrade pymupdf
 ```
 
