@@ -12,12 +12,11 @@ Activate your environment and use the package manager [pip](https://pip.pypa.io/
 ```bash
 pip install requests
 pip install argparse
-pip install PyMuPDF
+pip install pymupdf
 pip install python-docx
 pip install python-pptx
 pip install ffmpeg
 pip install fitz
-pip install --upgrade pymupdf
 ```
 
 We used models from [Ollama](https://ollama.com/), which you may download from their website. Once installed, activate ollama by either running the application on your system or via the following terminal code: 
