@@ -12,7 +12,7 @@ Activate your environment and use the package manager [pip](https://pip.pypa.io/
 ```bash
 pip install requests
 pip install argparse
-pip install pymupdf
+pip install PyMuPDF
 pip install python-docx
 pip install python-pptx
 pip install ffmpeg
