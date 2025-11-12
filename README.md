@@ -16,6 +16,7 @@ pip install PyMuPDF
 pip install python-docx
 pip install python-pptx
 pip install ffmpeg
+pip install pypdf
 ```
 
 We used models from [Ollama](https://ollama.com/), which you may download from their website. Once installed, activate ollama by either running the application on your system or via the following terminal code: 
